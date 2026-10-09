@@ -9,7 +9,7 @@ from facefusion.download import conditional_download_hashes, conditional_downloa
 from facefusion.face_helper import create_rotation_matrix_and_size, create_static_anchors, distance_to_bounding_box, distance_to_face_landmark_5, normalize_bounding_box, transform_bounding_box, transform_points
 from facefusion.filesystem import resolve_relative_path
 from facefusion.thread_helper import thread_semaphore
-from facefusion.types import Angle, BoundingBox, Detection, DownloadScope, DownloadSet, FaceLandmark5, InferencePool, Margin, ModelSet, Score, VisionFrame
+from facefusion.types import Angle, BoundingBox, Detection, DownloadScope, DownloadSet, FaceLandmark5, InferencePool, InferenceProvider, Margin, ModelSet, Score, VisionFrame
 from facefusion.vision import restrict_frame, unpack_resolution
 
 
@@ -130,6 +130,13 @@ def get_inference_pool() -> InferencePool:
 def clear_inference_pool() -> None:
 	model_names = [ state_manager.get_item('face_detector_model') ]
 	inference_manager.clear_inference_pool(__name__, model_names)
+
+
+def override_inference_providers() -> List[InferenceProvider]:
+	# El detector de caras siempre corre en CPU: ROCm en gfx1030 (Steam Deck)
+	# produce scores incorrectos con yoloface_8n y no detecta caras.
+	# El swapper (face_swapper) sigue usando ROCm para el rendimiento.
+	return [ 'CPUExecutionProvider' ]
 
 
 def collect_model_downloads() -> Tuple[DownloadSet, DownloadSet]:

@@ -572,7 +572,8 @@ def apply_args(args : Args, apply_state_item : ApplyStateItem) -> None:
 
 
 def get_common_modules() -> List[ModuleType]:
-	return [ content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, voice_extractor ]
+	# content_analyser (nsfw_1/2/3) y voice_extractor excluidos: no se usan en face_swap headless
+	return [ face_classifier, face_detector, face_landmarker, face_masker, face_recognizer ]
 
 
 def pre_check() -> bool:
@@ -788,6 +789,8 @@ def normalize_crop_frame(crop_vision_frame : VisionFrame) -> VisionFrame:
 	if model_type in [ 'ghost', 'hififace', 'hyperswap', 'uniface' ]:
 		crop_vision_frame = crop_vision_frame * model_standard_deviation + model_mean
 
+	# Sanear NaN/Inf antes del clip: ROCm fp16 puede producir valores inválidos
+	crop_vision_frame = numpy.nan_to_num(crop_vision_frame, nan=0.5, posinf=1.0, neginf=0.0).astype(numpy.float32)
 	crop_vision_frame = crop_vision_frame.clip(0, 1)
 	crop_vision_frame = crop_vision_frame[:, :, ::-1] * 255
 	return crop_vision_frame

@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Tuple
+from typing import List, Tuple
 
 import cv2
 import numpy
@@ -9,7 +9,7 @@ from facefusion.download import conditional_download_hashes, conditional_downloa
 from facefusion.face_helper import create_rotation_matrix_and_size, estimate_matrix_by_face_landmark_5, transform_points, warp_face_by_translation
 from facefusion.filesystem import resolve_relative_path
 from facefusion.thread_helper import conditional_thread_semaphore
-from facefusion.types import Angle, BoundingBox, DownloadScope, DownloadSet, FaceLandmark5, FaceLandmark68, InferencePool, ModelSet, Prediction, Score, VisionFrame
+from facefusion.types import Angle, BoundingBox, DownloadScope, DownloadSet, FaceLandmark5, FaceLandmark68, InferencePool, InferenceProvider, ModelSet, Prediction, Score, VisionFrame
 
 
 @lru_cache()
@@ -132,6 +132,10 @@ def get_inference_pool() -> InferencePool:
 def clear_inference_pool() -> None:
 	model_names = [ state_manager.get_item('face_landmarker_model'), 'fan_68_5' ]
 	inference_manager.clear_inference_pool(__name__, model_names)
+
+
+def override_inference_providers() -> List[InferenceProvider]:
+	return [ 'CPUExecutionProvider' ]
 
 
 def collect_model_downloads() -> Tuple[DownloadSet, DownloadSet]:

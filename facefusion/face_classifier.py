@@ -8,7 +8,7 @@ from facefusion.download import conditional_download_hashes, conditional_downloa
 from facefusion.face_helper import warp_face_by_face_landmark_5
 from facefusion.filesystem import resolve_relative_path
 from facefusion.thread_helper import conditional_thread_semaphore
-from facefusion.types import Age, DownloadScope, FaceLandmark5, Gender, InferencePool, ModelOptions, ModelSet, Race, VisionFrame
+from facefusion.types import Age, DownloadScope, FaceLandmark5, Gender, InferencePool, InferenceProvider, ModelOptions, ModelSet, Race, VisionFrame
 
 
 @lru_cache()
@@ -57,6 +57,10 @@ def get_inference_pool() -> InferencePool:
 def clear_inference_pool() -> None:
 	model_names = [ 'fairface' ]
 	inference_manager.clear_inference_pool(__name__, model_names)
+
+
+def override_inference_providers() -> List[InferenceProvider]:
+	return [ 'CPUExecutionProvider' ]
 
 
 def get_model_options() -> ModelOptions:
